@@ -122,7 +122,6 @@ def main():
     # Paramter Settings
     axes = ['x', 'y', 'z']
     accel = {'x':0, 'y':0, 'z':0}
-    can_send = False
 
     rospy.init_node('pimouse_controller')
     r = rospy.Rate(60)
@@ -134,7 +133,6 @@ def main():
             result = motor_on()
             if result.success:
                 rospy.logdebug('motor restart')
-                can_send = True
             else:
                 rospy.logerr('can not restart motor')
 
@@ -146,7 +144,6 @@ def main():
         if GPIO.input(PIN_STOP) == SW_ON:
             # motor_off
             result = motor_off()
-            can_send = False # for safety, turn off without service responce 
             if result.success:
                 rospy.logdebug('motor stop')
             else:
@@ -166,9 +163,8 @@ def main():
             raw_accel_pubs[axis].publish(raw_value)
 
         # send command
-        if can_send:
-            sender.convert_accel(accel['x'], accel['y'])
-            sender.send()
+        sender.convert_accel(accel['x'], accel['y'])
+        sender.send()
         r.sleep()
 
 
